@@ -1,0 +1,32 @@
+:root {
+  /* Palette */
+  --cloud-forest: #1A2F25;
+  --volcanic-stone: #211F1D;
+  --nevis-mist: #F2EDE6;
+  --dawn-gold: #D4A843;
+  --vireo-wing: #7BAF32;
+  --mineral-spring: #4A7A70;
+  --moringa-terra: #A8855F;
+  --trade-wind-sky: #B8C4C0;
+
+  /* Semantic roles */
+  --bg: var(--volcanic-stone);
+  --ink: var(--nevis-mist);
+  --accent: var(--dawn-gold);
+
+  /* Typography */
+  --font-display: "EB Garamond", Garamond, "Adobe Garamond Pro", Georgia, serif;
+  --font-body: Georgia, "Times New Roman", serif;
+
+  /* Readability gradient over video */
+  --scrim: linear-gradient(
+    to bottom,
+    rgba(26, 47, 37, 0.55) 0%,
+    rgba(33, 31, 29, 0.25) 35%,
+    rgba(33, 31, 29, 0.35) 65%,
+    rgba(26, 47, 37, 0.75) 100%
+  );
+
+  /* Spacing / layout */
+  --gutter: clamp(1.5rem, 5vw, 6rem);
+}
