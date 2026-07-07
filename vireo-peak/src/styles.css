@@ -8,6 +8,46 @@
   box-sizing: border-box;
 }
 
+/* Branded preloader curtain — covers the page on load, slides up (or fades,
+   reduced motion) once the hero frames are ready. */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--cloud-forest);
+  display: grid;
+  place-items: center;
+  will-change: transform;
+}
+.intro.is-done {
+  display: none;
+}
+.intro__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+}
+.intro__peak {
+  width: clamp(60px, 8vw, 96px);
+  height: auto;
+  overflow: visible;
+}
+.intro__peak path {
+  fill: none;
+  stroke: var(--dawn-gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.intro__word {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--nevis-mist);
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  letter-spacing: 0.04em;
+}
+
 html {
   scroll-behavior: smooth;
 }

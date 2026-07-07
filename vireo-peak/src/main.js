@@ -103,16 +103,40 @@ function preloadSeq(cfg) {
  * the nearest section edge. Skipped under prefers-reduced-motion: no pin, no
  * scrub — every section is a static poster.
  * ---------------------------------------------------------------------- */
+// Branded preloader curtain (markup in index.html, styles in styles.css).
+const intro = document.querySelector("[data-intro]");
+const introMark = document.querySelector("[data-intro-mark]");
+const finishIntro = () => intro && intro.classList.add("is-done");
+
 if (prefersReducedMotion) {
-  // Static posters everywhere (canvas CSS background + video poster).
+  // Static posters everywhere. No large motion: hold the curtain briefly, fade.
+  if (intro) {
+    setTimeout(
+      () =>
+        gsap.to(intro, { autoAlpha: 0, duration: 0.5, onComplete: finishIntro }),
+      700
+    );
+  }
 } else {
   document.documentElement.classList.add("has-motion");
+
+  // Keep the reveal anchored at the top of the page on refresh.
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 
   // Lenis smooth scroll, driven by GSAP's ticker (our single rAF loop).
   const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
   lenis.on("scroll", ScrollTrigger.update);
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
+
+  // Lock scroll under the curtain until the reveal completes.
+  lenis.scrollTo(0, { immediate: true });
+  lenis.stop();
+
+  // Mark entrance while the curtain holds.
+  if (introMark) {
+    gsap.from(introMark, { opacity: 0, y: 16, duration: 0.6, ease: "power2.out" });
+  }
 
   const N = sections.length;
   // Scroll distance per section, in vh. Higher = slower scrub (more scrolling to
@@ -210,11 +234,40 @@ if (prefersReducedMotion) {
   });
 
   // Preload every frame of every sequence in parallel; each enables its own
-  // scrub when ready and re-measures. Until then that section shows its poster.
-  configs.forEach((cfg) => {
+  // scrub when ready. The curtain waits on the hero (section 0) specifically.
+  let heroReady = Promise.resolve();
+  configs.forEach((cfg, i) => {
     if (cfg.type !== "seq") return;
-    preloadSeq(cfg).then(() => ScrollTrigger.refresh());
+    const p = preloadSeq(cfg).then(() => ScrollTrigger.refresh());
+    if (i === 0) heroReady = p;
   });
+
+  // Reveal: lift the mark, slide the curtain up, stagger the hero copy in, then
+  // hand scrolling back. Idempotent + safety-timed so it can't trap the page.
+  const heroContent = sections[0].querySelectorAll(".section__content > *");
+  let revealed = false;
+  const reveal = () => {
+    if (revealed) return;
+    revealed = true;
+    ScrollTrigger.refresh();
+    if (!intro) return lenis.start();
+    gsap
+      .timeline({
+        onComplete: () => {
+          finishIntro();
+          lenis.start();
+        },
+      })
+      .to(introMark, { y: -28, opacity: 0, duration: 0.5, ease: "power2.in" })
+      .to(intro, { yPercent: -100, duration: 1.0, ease: "power4.inOut" }, "-=0.15")
+      .from(
+        heroContent,
+        { y: 24, opacity: 0, duration: 0.85, stagger: 0.12, ease: "power3.out" },
+        "-=0.55"
+      );
+  };
+  Promise.all([heroReady, new Promise((r) => setTimeout(r, 900))]).then(reveal);
+  setTimeout(reveal, 6000); // safety — never let the curtain trap the page
 
   // Redraw current frames on resize (canvas backing store changes).
   window.addEventListener("resize", () => {
