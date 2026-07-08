@@ -21,7 +21,7 @@ const progressBar = document.querySelector("[data-progress]");
  * before that section's scrub is enabled; until then its poster shows.
  * ---------------------------------------------------------------------- */
 const framePath = (seq, i) =>
-  `/media/seq/${seq}/${seq}_${String(i + 1).padStart(4, "0")}.jpg`;
+  `/media/seq/${seq}/${seq}_${String(i + 1).padStart(4, "0")}.webp`;
 
 const configs = sections.map((section) => {
   const canvas = section.querySelector(".section__canvas");
@@ -195,8 +195,35 @@ if (prefersReducedMotion) {
     snapTimer = setTimeout(snapToNearest, 140);
   });
 
-  // The single rAF loop: lerp the scrub target, scrub the active sequence, park
-  // the incoming one on frame 0, and crossfade the boundary.
+  // Lazy per-section loading: a sequence's frames are only fetched when we
+  // approach it, so the first load is just the hero — not all 55MB at once.
+  const loadStarted = new Set();
+  const ensureLoaded = (i) => {
+    const cfg = configs[i];
+    if (!cfg || cfg.type !== "seq" || loadStarted.has(i)) return Promise.resolve();
+    loadStarted.add(i);
+    return preloadSeq(cfg);
+  };
+
+  let revealed = false;
+
+  // When the active section changes (and once at reveal): park the incoming
+  // sequence on frame 0, warm the next couple of sections, and play only the
+  // in-view looping video.
+  const applyActive = (active) => {
+    const nxt = configs[active + 1];
+    if (nxt && nxt.type === "seq") drawIndex(nxt, 0);
+    for (let k = active; k <= active + 2; k++) ensureLoaded(k); // warm ahead
+    configs.forEach((cfg, k) => {
+      if (cfg.type !== "video") return;
+      if (k === active || k === active + 1) cfg.el.play().catch(() => {});
+      else cfg.el.pause();
+    });
+  };
+
+  // The single rAF loop: lerp the scrub target, scrub the active sequence, and
+  // crossfade the boundary. Ahead-loading and video playback wait until after
+  // the reveal so nothing competes with the hero for bandwidth behind curtain.
   let smooth = 0;
   let lastActive = -1;
   gsap.ticker.add(() => {
@@ -207,22 +234,12 @@ if (prefersReducedMotion) {
     while (active < N - 1 && posVH >= cum[active + 1]) active++;
     const local = gsap.utils.clamp(0, 1, (posVH - cum[active]) / DIST[active]);
 
-    // Scrub the active sequence; static sections just hold their poster.
     const a = configs[active];
     if (a.type === "seq") drawIndex(a, Math.round(local * (a.count - 1)));
 
-    // On entering a section: park the incoming sequence on frame 0, and play
-    // any looping video that's in view (active or crossfading in), pausing the
-    // rest so only the visible clip runs.
     if (active !== lastActive) {
       lastActive = active;
-      const nxt = configs[active + 1];
-      if (nxt && nxt.type === "seq") drawIndex(nxt, 0);
-      configs.forEach((cfg, k) => {
-        if (cfg.type !== "video") return;
-        if (k === active || k === active + 1) cfg.el.play().catch(() => {});
-        else cfg.el.pause();
-      });
+      if (revealed) applyActive(active);
     }
 
     // Crossfade: incoming fades in over the active section's last 12%.
@@ -233,22 +250,14 @@ if (prefersReducedMotion) {
     }
   });
 
-  // Preload every frame of every sequence in parallel; each enables its own
-  // scrub when ready. The curtain waits on the hero (section 0) specifically.
-  let heroReady = Promise.resolve();
-  configs.forEach((cfg, i) => {
-    if (cfg.type !== "seq") return;
-    const p = preloadSeq(cfg).then(() => ScrollTrigger.refresh());
-    if (i === 0) heroReady = p;
-  });
-
   // Reveal: lift the mark, slide the curtain up, stagger the hero copy in, then
-  // hand scrolling back. Idempotent + safety-timed so it can't trap the page.
+  // hand scrolling back and begin warming the sections ahead. Idempotent +
+  // safety-timed so it can't trap the page.
   const heroContent = sections[0].querySelectorAll(".section__content > *");
-  let revealed = false;
   const reveal = () => {
     if (revealed) return;
     revealed = true;
+    applyActive(0); // now that the hero is up, start warming the next sections
     ScrollTrigger.refresh();
     if (!intro) return lenis.start();
     gsap
@@ -266,7 +275,12 @@ if (prefersReducedMotion) {
         "-=0.55"
       );
   };
-  Promise.all([heroReady, new Promise((r) => setTimeout(r, 900))]).then(reveal);
+
+  // The curtain waits on the HERO frames only — fetched with the whole pipe to
+  // themselves — plus a short minimum hold.
+  Promise.all([ensureLoaded(0), new Promise((r) => setTimeout(r, 900))]).then(
+    reveal
+  );
   setTimeout(reveal, 6000); // safety — never let the curtain trap the page
 
   // Redraw current frames on resize (canvas backing store changes).

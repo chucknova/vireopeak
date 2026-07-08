@@ -23,8 +23,11 @@
          slides up to reveal the page. -->
     <div class="intro" data-intro>
       <div class="intro__inner" data-intro-mark>
-        <svg class="intro__peak" viewBox="0 0 72 44" aria-hidden="true">
-          <path d="M3 41 L24 10 L36 26 L48 6 L69 41" />
+        <!-- Vireo "V" mark (recreated as SVG — swap in the real vector here). -->
+        <svg class="intro__logo" viewBox="0 0 120 112" aria-hidden="true">
+          <path
+            d="M8 26 L40 26 L50 50 L45 55 L51 60 L60 76 L88 26 L104 26 L64 100 L56 100 Z"
+          />
         </svg>
         <span class="intro__word">Vireo Peak</span>
       </div>
@@ -36,7 +39,7 @@
       <div class="stage" data-stage>
       <!-- 01 — scroll-scrubbed image sequence drawn to a canvas -->
       <section class="section" id="canopy">
-        <canvas class="section__canvas" data-seq="hero" data-frames="97" aria-hidden="true"></canvas>
+        <canvas class="section__canvas" data-seq="hero" data-frames="72" aria-hidden="true"></canvas>
         <div class="section__scrim"></div>
         <div class="section__content">
           <p class="section__eyebrow">Nevis · West Indies</p>
@@ -57,7 +60,7 @@
           muted
           loop
           playsinline
-          preload="auto"
+          preload="none"
           poster="/media/02-vireo-song.jpg"
         >
           <source src="/media/02-vireo-song.webm" type="video/webm" />

@@ -28,17 +28,13 @@
   align-items: center;
   gap: 1.4rem;
 }
-.intro__peak {
-  width: clamp(60px, 8vw, 96px);
+.intro__logo {
+  width: clamp(72px, 9vw, 112px);
   height: auto;
-  overflow: visible;
+  display: block;
 }
-.intro__peak path {
-  fill: none;
-  stroke: var(--dawn-gold);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.intro__logo path {
+  fill: var(--vireo-wing);
 }
 .intro__word {
   font-family: var(--font-display);

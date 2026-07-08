@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vireo Peak — A rainforest retreat</title>
+    <meta
+      name="description"
+      content="Vireo Peak — a canopy-level rainforest retreat where the mountain meets the trade winds."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      // Set before first paint so stacked sections don't flash all-visible.
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.classList.add("has-motion");
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-BWqBpgDM.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DG6VEtZg.css">
+  </head>
+  <body>
+    <!-- Branded preloader curtain — holds until the hero frames load, then
+         slides up to reveal the page. -->
+    <div class="intro" data-intro>
+      <div class="intro__inner" data-intro-mark>
+        <!-- Vireo "V" mark (recreated as SVG — swap in the real vector here). -->
+        <svg class="intro__logo" viewBox="0 0 120 112" aria-hidden="true">
+          <path
+            d="M8 26 L40 26 L50 50 L45 55 L51 60 L60 76 L88 26 L104 26 L64 100 L56 100 Z"
+          />
+        </svg>
+        <span class="intro__word">Vireo Peak</span>
+      </div>
+    </div>
+
+    <div class="progress" data-progress aria-hidden="true"></div>
+
+    <main>
+      <div class="stage" data-stage>
+      <!-- 01 — scroll-scrubbed image sequence drawn to a canvas -->
+      <section class="section" id="canopy">
+        <canvas class="section__canvas" data-seq="hero" data-frames="72" aria-hidden="true"></canvas>
+        <div class="section__scrim"></div>
+        <div class="section__content">
+          <p class="section__eyebrow">Nevis · West Indies</p>
+          <h1 class="section__title">Vireo Peak</h1>
+          <p class="section__body">
+            A rainforest retreat suspended in the canopy, where the mountain
+            breathes and the trade winds never stop moving.
+          </p>
+        </div>
+      </section>
+
+      <!-- 02 -->
+      <section class="section" id="song">
+        <!-- Section 2 plays as a looping video (not scrubbed) -->
+        <video
+          class="section__video"
+          data-video
+          muted
+          loop
+          playsinline
+          preload="none"
+          poster="/media/02-vireo-song.jpg"
+        >
+          <source src="/media/02-vireo-song.webm" type="video/webm" />
+          <source src="/media/02-vireo-song.mp4" type="video/mp4" />
+        </video>
+        <div class="section__scrim"></div>
+        <div class="section__content">
+          <p class="section__eyebrow">The wild chorus</p>
+          <h2 class="section__title">The Vireo's Song</h2>
+          <p class="section__body">
+            Wake to birdsong instead of alarms. The forest keeps its own hours,
+            and here you are invited to keep them too.
+          </p>
+        </div>
+      </section>
+
+      <!-- 03 -->
+      <section class="section" id="cottages">
+        <canvas
+          class="section__canvas"
+          data-seq="03-cottage-curtain"
+          data-frames="97"
+          aria-hidden="true"
+        ></canvas>
+        <div class="section__scrim"></div>
+        <div class="section__content">
+          <p class="section__eyebrow">Shelter in the green</p>
+          <h2 class="section__title">Cottages in the Cloud</h2>
+          <p class="section__body">
+            Linen curtains drift on the mountain air. Each cottage opens
+            entirely to the forest, dissolving the line between inside and out.
+          </p>
+        </div>
+      </section>
+
+      <!-- 04 -->
+      <section class="section" id="garden">
+        <canvas
+          class="section__canvas"
+          data-seq="04-garden"
+          data-frames="97"
+          aria-hidden="true"
+        ></canvas>
+        <div class="section__scrim"></div>
+        <div class="section__content">
+          <p class="section__eyebrow">Grown on the slope</p>
+          <h2 class="section__title">The Living Garden</h2>
+          <p class="section__body">
+            Moringa, breadfruit and wild herbs terrace the hillside — the
+            kitchen begins a few steps from where you sleep.
+          </p>
+        </div>
+      </section>
+
+      <!-- 05 -->
+      <section class="section" id="table">
+        <canvas
+          class="section__canvas"
+          data-seq="05-communal-table"
+          data-frames="97"
+          aria-hidden="true"
+        ></canvas>
+        <div class="section__scrim"></div>
+        <div class="section__content">
+          <p class="section__eyebrow">Gather</p>
+          <h2 class="section__title">The Communal Table</h2>
+          <p class="section__body">
+            One long table, one shared meal. Strangers arrive for dinner and
+            leave as the kind of company you write home about.
+          </p>
+        </div>
+      </section>
+
+      <!-- 06 -->
+      <section class="section" id="pavilion">
+        <canvas
+          class="section__canvas"
+          data-seq="06-pavilion-sunrise"
+          data-frames="97"
+          aria-hidden="true"
+        ></canvas>
+        <div class="section__scrim"></div>
+        <div class="section__content">
+          <p class="section__eyebrow">First light</p>
+          <h2 class="section__title">Pavilion at Dawn</h2>
+          <p class="section__body">
+            The open-air pavilion faces east. Come for the sunrise, stay for the
+            long, unhurried stillness that follows it.
+          </p>
+        </div>
+      </section>
+
+      <!-- 07 -->
+      <section class="section" id="ridge">
+        <canvas
+          class="section__canvas"
+          data-seq="07-cottages-aerial"
+          data-frames="97"
+          aria-hidden="true"
+        ></canvas>
+        <div class="section__scrim"></div>
+        <div class="section__content">
+          <p class="section__eyebrow">The lay of the land</p>
+          <h2 class="section__title">Above the Ridge</h2>
+          <p class="section__body">
+            Seen from the air, the retreat all but disappears into the forest —
+            a handful of rooftops beneath an unbroken canopy.
+          </p>
+        </div>
+      </section>
+
+      <!-- 08 -->
+      <section class="section" id="summit">
+        <canvas
+          class="section__canvas"
+          data-seq="08-summit"
+          data-frames="97"
+          aria-hidden="true"
+        ></canvas>
+        <div class="section__scrim"></div>
+        <div class="section__content">
+          <p class="section__eyebrow">The climb rewarded</p>
+          <h2 class="section__title">The Summit</h2>
+          <p class="section__body">
+            Above the clouds, the island falls away on every side. This is where
+            Vireo Peak earns its name.
+          </p>
+        </div>
+      </section>
+      </div>
+    </main>
+
+  </body>
+</html>
