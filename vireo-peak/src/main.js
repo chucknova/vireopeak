@@ -33,7 +33,7 @@ const configs = sections.map((section) => {
       seq: canvas.dataset.seq,
       count,
       frames: new Array(count),
-      ready: false,
+      promises: new Array(count),
       current: -1,
     };
   }
@@ -69,31 +69,55 @@ function drawFrame(cfg, img) {
   ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
 }
 
-// Draw a sequence at a frame index (clamped), skipping redundant redraws.
-function drawIndex(cfg, idx) {
-  if (cfg.type !== "seq" || !cfg.ready) return;
-  const i = gsap.utils.clamp(0, cfg.count - 1, idx);
-  if (i === cfg.current) return;
-  cfg.current = i;
-  drawFrame(cfg, cfg.frames[i]);
+// Has this frame finished loading into usable pixels?
+function frameLoaded(cfg, i) {
+  const f = cfg.frames[i];
+  return f && f.complete && f.naturalWidth > 0;
 }
 
-// Preload every frame of one sequence, then flag it ready (enables its scrub).
-function preloadSeq(cfg) {
-  return Promise.all(
-    Array.from(
-      { length: cfg.count },
-      (_, i) =>
-        new Promise((resolve) => {
-          const img = new Image();
-          img.onload = img.onerror = () => resolve();
-          img.src = framePath(cfg.seq, i);
-          cfg.frames[i] = img;
-        })
-    )
-  ).then(() => {
-    cfg.ready = true;
+// Draw a sequence at a frame index, falling back to the nearest ALREADY-LOADED
+// frame while the rest stream in — so scrubbing works from the very first frame
+// and sharpens as more arrive.
+function drawIndex(cfg, idx) {
+  if (cfg.type !== "seq") return;
+  const target = gsap.utils.clamp(0, cfg.count - 1, idx);
+  let best = -1;
+  for (let d = 0; d < cfg.count; d++) {
+    if (target - d >= 0 && frameLoaded(cfg, target - d)) {
+      best = target - d;
+      break;
+    }
+    if (target + d < cfg.count && frameLoaded(cfg, target + d)) {
+      best = target + d;
+      break;
+    }
+  }
+  if (best < 0 || best === cfg.current) return;
+  cfg.current = best;
+  drawFrame(cfg, cfg.frames[best]);
+}
+
+// Kick off loading a single frame (idempotent); returns a promise.
+function loadFrame(cfg, i) {
+  if (cfg.promises[i]) return cfg.promises[i];
+  const img = new Image();
+  cfg.frames[i] = img;
+  const p = new Promise((resolve) => {
+    img.onload = img.onerror = () => resolve();
   });
+  cfg.promises[i] = p;
+  img.src = framePath(cfg.seq, i);
+  return p;
+}
+
+// Load a sequence: fetch frame 0 first (fast first paint / crossfade poster),
+// then stream the rest. Resolves once frame 0 is ready.
+function loadSeq(cfg) {
+  const first = loadFrame(cfg, 0);
+  first.then(() => {
+    for (let i = 1; i < cfg.count; i++) loadFrame(cfg, i);
+  });
+  return first;
 }
 
 /* -------------------------------------------------------------------------
@@ -202,7 +226,7 @@ if (prefersReducedMotion) {
     const cfg = configs[i];
     if (!cfg || cfg.type !== "seq" || loadStarted.has(i)) return Promise.resolve();
     loadStarted.add(i);
-    return preloadSeq(cfg);
+    return loadSeq(cfg);
   };
 
   let revealed = false;
@@ -278,7 +302,7 @@ if (prefersReducedMotion) {
 
   // The curtain waits on the HERO frames only — fetched with the whole pipe to
   // themselves — plus a short minimum hold.
-  Promise.all([ensureLoaded(0), new Promise((r) => setTimeout(r, 900))]).then(
+  Promise.all([ensureLoaded(0), new Promise((r) => setTimeout(r, 700))]).then(
     reveal
   );
   setTimeout(reveal, 6000); // safety — never let the curtain trap the page
@@ -286,7 +310,7 @@ if (prefersReducedMotion) {
   // Redraw current frames on resize (canvas backing store changes).
   window.addEventListener("resize", () => {
     configs.forEach((cfg) => {
-      if (cfg.type === "seq" && cfg.ready && cfg.current >= 0) {
+      if (cfg.type === "seq" && cfg.current >= 0) {
         const idx = cfg.current;
         cfg.current = -1; // force a redraw at the new size
         drawIndex(cfg, idx);

@@ -10,6 +10,13 @@
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Start the hero's first frame downloading before the JS boots. -->
+    <link
+      rel="preload"
+      as="image"
+      href="/media/seq/hero/hero_0001.webp"
+      fetchpriority="high"
+    />
     <link rel="stylesheet" href="/src/styles.css" />
     <script>
       // Set before first paint so stacked sections don't flash all-visible.
